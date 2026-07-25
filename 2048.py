@@ -102,7 +102,6 @@ class Theme:
             "btn_hover": (255, 255, 255, 255),
             "btn_text": (55, 48, 40),
             "tile_colors": {
-                # value: (bg_color, text_color)
                 2:    ((238, 228, 218), (119, 110, 101)),
                 4:    ((237, 224, 200), (119, 110, 101)),
                 8:    ((242, 177, 121), (255, 255, 255)),
@@ -120,7 +119,7 @@ class Theme:
         },
         RAVEN: {
             "name": "Raven Night",
-            "bg_color": (15, 23, 42),          # Solid Obsidian / Slate Dark
+            "bg_color": (15, 23, 42),
             "glass_card_bg": (30, 41, 59, 210),
             "glass_card_border": (99, 102, 241, 140),
             "grid_bg": (22, 30, 46, 230),
@@ -155,14 +154,9 @@ class Theme:
 def draw_glass_panel(surface, rect, bg_rgba, border_rgba, radius=16, border_width=2):
     x, y, w, h = rect
     panel_surf = pygame.Surface((w, h), pygame.SRCALPHA)
-    
-    # Translucent glass base
     pygame.draw.rect(panel_surf, bg_rgba, (0, 0, w, h), border_radius=radius)
-    
-    # Clean border outline
     if border_width > 0:
         pygame.draw.rect(panel_surf, border_rgba, (0, 0, w, h), width=border_width, border_radius=radius)
-        
     surface.blit(panel_surf, (x, y))
 
 
@@ -286,16 +280,12 @@ class Tile:
 
         radius = max(8, int(cell_size * 0.14))
 
-        # 100% Solid Full-Block Color (No highlights, no split lines)
         tile_surf = pygame.Surface((w, h), pygame.SRCALPHA)
         pygame.draw.rect(tile_surf, bg_color, (0, 0, w, h), border_radius=radius)
-
-        # Subtle translucent border outline for polished separation
         pygame.draw.rect(tile_surf, (255, 255, 255, 40), (0, 0, w, h), width=1, border_radius=radius)
 
         surface.blit(tile_surf, (draw_x, draw_y))
 
-        # Dynamic Font Scaling & Text Centering
         val_str = str(self.value)
         num_len = len(val_str)
         font_size = int(cell_size * (0.45 if num_len <= 2 else (0.35 if num_len == 3 else 0.28)))
@@ -365,6 +355,10 @@ class Game2048:
         self.grid_size = size
         self.init_game()
 
+    def quit_game(self):
+        pygame.quit()
+        sys.exit()
+
     def init_game(self):
         self.grid = [[None for _ in range(self.grid_size)] for _ in range(self.grid_size)]
         self.score = 0
@@ -378,28 +372,35 @@ class Game2048:
         font_main = pygame.font.SysFont("comicsans", 22, bold=True)
         font_lg = pygame.font.SysFont("comicsans", 30, bold=True)
         
-        # Centered, structured Start Menu buttons (No overlap!)
-        self.btn_play = GlassButton((240, 300, 320, 58), "START GAME", font_lg, callback=lambda: self.start_game())
-        self.btn_theme_menu = GlassButton((240, 380, 320, 52), f"MODE: {self.theme_name.upper()}", font_main, callback=self.toggle_theme)
+        # Start Menu Buttons
+        self.btn_play = GlassButton((240, 295, 320, 54), "START GAME", font_lg, callback=lambda: self.start_game())
+        self.btn_theme_menu = GlassButton((240, 362, 320, 48), f"MODE: {self.theme_name.upper()}", font_main, callback=self.toggle_theme)
         
         # Grid Size Buttons row
-        self.btn_grid3 = GlassButton((220, 500, 100, 48), "3x3", font_main, callback=lambda: self.set_grid_size(3))
-        self.btn_grid4 = GlassButton((350, 500, 100, 48), "4x4", font_main, callback=lambda: self.set_grid_size(4))
-        self.btn_grid5 = GlassButton((480, 500, 100, 48), "5x5", font_main, callback=lambda: self.set_grid_size(5))
+        self.btn_grid3 = GlassButton((220, 465, 100, 44), "3x3", font_main, callback=lambda: self.set_grid_size(3))
+        self.btn_grid4 = GlassButton((350, 465, 100, 44), "4x4", font_main, callback=lambda: self.set_grid_size(4))
+        self.btn_grid5 = GlassButton((480, 465, 100, 44), "5x5", font_main, callback=lambda: self.set_grid_size(5))
+
+        # Quit Button on Start Menu
+        self.btn_quit_menu = GlassButton((240, 532, 320, 48), "QUIT GAME", font_main, callback=self.quit_game)
 
         # Gameplay Top Header Buttons
         self.btn_undo = GlassButton((520, 115, 110, 42), "↺ UNDO", font_main, callback=self.undo_move)
         self.btn_pause = GlassButton((645, 115, 110, 42), "⏸ PAUSE", font_main, callback=self.pause_game)
 
         # Pause Overlay Buttons
-        self.btn_resume = GlassButton((300, 340, 200, 50), "RESUME", font_lg, callback=self.resume_game)
-        self.btn_restart_pause = GlassButton((300, 405, 200, 50), "RESTART", font_lg, callback=self.restart_game)
-        self.btn_theme_pause = GlassButton((250, 470, 300, 50), f"MODE: {self.theme_name.upper()}", font_main, callback=self.toggle_theme)
-        self.btn_main_menu = GlassButton((300, 535, 200, 50), "MAIN MENU", font_main, callback=self.goto_menu)
+        self.btn_resume = GlassButton((300, 315, 200, 44), "RESUME", font_lg, callback=self.resume_game)
+        self.btn_restart_pause = GlassButton((300, 370, 200, 44), "RESTART", font_lg, callback=self.restart_game)
+        self.btn_theme_pause = GlassButton((250, 425, 300, 44), f"MODE: {self.theme_name.upper()}", font_main, callback=self.toggle_theme)
+        self.btn_main_menu = GlassButton((300, 480, 200, 44), "MAIN MENU", font_main, callback=self.goto_menu)
+        self.btn_quit_pause = GlassButton((300, 535, 200, 44), "QUIT GAME", font_main, callback=self.quit_game)
 
         # Game Over / Victory Buttons
-        self.btn_try_again = GlassButton((280, 460, 240, 55), "TRY AGAIN", font_lg, callback=self.restart_game)
-        self.btn_keep_playing = GlassButton((260, 460, 280, 55), "KEEP PLAYING", font_lg, callback=self.continue_game)
+        self.btn_try_again = GlassButton((195, 460, 195, 52), "TRY AGAIN", font_lg, callback=self.restart_game)
+        self.btn_quit_loss = GlassButton((410, 460, 195, 52), "QUIT GAME", font_lg, callback=self.quit_game)
+
+        self.btn_keep_playing = GlassButton((195, 460, 200, 52), "KEEP PLAYING", font_lg, callback=self.continue_game)
+        self.btn_quit_win = GlassButton((410, 460, 195, 52), "QUIT GAME", font_lg, callback=self.quit_game)
 
     def start_game(self):
         self.init_game()
@@ -607,23 +608,25 @@ class Game2048:
             self.btn_grid3.update(mouse_pos)
             self.btn_grid4.update(mouse_pos)
             self.btn_grid5.update(mouse_pos)
+            self.btn_quit_menu.update(mouse_pos)
         elif self.state in ("PLAYING", "WON", "GAME_OVER"):
             self.btn_undo.update(mouse_pos)
             self.btn_pause.update(mouse_pos)
             if self.state == "WON":
                 self.btn_keep_playing.update(mouse_pos)
+                self.btn_quit_win.update(mouse_pos)
             elif self.state == "GAME_OVER":
                 self.btn_try_again.update(mouse_pos)
+                self.btn_quit_loss.update(mouse_pos)
         elif self.state == "PAUSED":
             self.btn_resume.update(mouse_pos)
             self.btn_restart_pause.update(mouse_pos)
             self.btn_theme_pause.update(mouse_pos)
             self.btn_main_menu.update(mouse_pos)
+            self.btn_quit_pause.update(mouse_pos)
 
     def draw(self, surface):
         theme_dict = self.get_theme()
-        
-        # Solid Rich Background Fill
         surface.fill(theme_dict["bg_color"])
 
         if self.state == "MENU":
@@ -639,8 +642,8 @@ class Game2048:
                 self.draw_gameover_overlay(surface, theme_dict)
 
     def draw_menu_screen(self, surface, theme_dict):
-        # 1. Hero Title Card (X=130, Y=60, W=540, H=180)
-        draw_glass_panel(surface, (130, 60, 540, 180), theme_dict["glass_card_bg"], theme_dict["glass_card_border"], radius=24, border_width=2)
+        # Hero Title Card
+        draw_glass_panel(surface, (130, 60, 540, 175), theme_dict["glass_card_bg"], theme_dict["glass_card_border"], radius=24, border_width=2)
 
         font_title = pygame.font.SysFont("comicsans", 68, bold=True)
         title_text = font_title.render("2048", True, theme_dict["text_main"])
@@ -648,45 +651,41 @@ class Game2048:
 
         font_sub = pygame.font.SysFont("comicsans", 20, bold=True)
         sub_text = font_sub.render("GLASS EDITION", True, theme_dict["text_accent"])
-        surface.blit(sub_text, sub_text.get_rect(center=(400, 175)))
+        surface.blit(sub_text, sub_text.get_rect(center=(400, 170)))
 
         font_info = pygame.font.SysFont("comicsans", 16)
         info_text = font_info.render("Join tiles with Arrow keys or WASD to reach 2048!", True, theme_dict["text_muted"])
-        surface.blit(info_text, info_text.get_rect(center=(400, 210)))
+        surface.blit(info_text, info_text.get_rect(center=(400, 205)))
 
-        # 2. Main Menu Action Container Card (X=130, Y=260, W=540, H=500)
-        draw_glass_panel(surface, (130, 260, 540, 500), theme_dict["glass_card_bg"], theme_dict["glass_card_border"], radius=24, border_width=2)
+        # Main Action Container Card
+        draw_glass_panel(surface, (130, 255, 540, 510), theme_dict["glass_card_bg"], theme_dict["glass_card_border"], radius=24, border_width=2)
 
-        # Buttons inside Container Card
         self.btn_play.draw(surface, theme_dict)
         self.btn_theme_menu.draw(surface, theme_dict)
 
-        # Centered Grid Size Label (X=400, Y=460)
         lbl_grid = font_sub.render("SELECT GRID SIZE", True, theme_dict["text_main"])
-        surface.blit(lbl_grid, lbl_grid.get_rect(center=(400, 460)))
+        surface.blit(lbl_grid, lbl_grid.get_rect(center=(400, 435)))
 
-        # Grid buttons
         self.btn_grid3.draw(surface, theme_dict)
         self.btn_grid4.draw(surface, theme_dict)
         self.btn_grid5.draw(surface, theme_dict)
 
-        # Highlight active grid size button accurately
         sel_btn = self.btn_grid4
         if self.grid_size == 3: sel_btn = self.btn_grid3
         elif self.grid_size == 5: sel_btn = self.btn_grid5
         pygame.draw.rect(surface, theme_dict["text_accent"], sel_btn.rect.inflate(6, 6), width=3, border_radius=14)
 
-        # Quick Controls Hint inside Card
-        hint_txt = font_info.render("Controls: Arrow Keys / WASD  |  [U]: Undo  |  [P]: Pause", True, theme_dict["text_muted"])
-        surface.blit(hint_txt, hint_txt.get_rect(center=(400, 680)))
+        # Quit Button
+        self.btn_quit_menu.draw(surface, theme_dict)
 
-        # 3. Footer Audio Status
+        hint_txt = font_info.render("Controls: Arrow Keys / WASD  |  [U]: Undo  |  [P]: Pause", True, theme_dict["text_muted"])
+        surface.blit(hint_txt, hint_txt.get_rect(center=(400, 695)))
+
         snd_txt = f"Sound: {'ON' if self.sound_mgr.enabled else 'OFF'} (Press 'M' to toggle)"
         lbl_snd = font_info.render(snd_txt, True, theme_dict["text_muted"])
         surface.blit(lbl_snd, lbl_snd.get_rect(center=(400, 800)))
 
     def draw_gameplay_screen(self, surface, theme_dict):
-        # Header Game Title Banner
         font_logo = pygame.font.SysFont("comicsans", 52, bold=True)
         logo_text = font_logo.render("2048", True, theme_dict["text_main"])
         surface.blit(logo_text, (45, 30))
@@ -695,7 +694,6 @@ class Game2048:
         tag_text = font_tag.render(self.theme_name.upper(), True, theme_dict["text_accent"])
         surface.blit(tag_text, (48, 90))
 
-        # Score Cards
         draw_glass_panel(surface, (230, 30, 130, 75), theme_dict["glass_card_bg"], theme_dict["glass_card_border"], radius=14)
         font_lbl = pygame.font.SysFont("comicsans", 16, bold=True)
         font_val = pygame.font.SysFont("comicsans", 28, bold=True)
@@ -711,18 +709,15 @@ class Game2048:
         surface.blit(lbl_h, lbl_h.get_rect(center=(440, 48)))
         surface.blit(val_h, val_h.get_rect(center=(440, 78)))
 
-        # Header Buttons
         self.btn_undo.draw(surface, theme_dict)
         self.btn_pause.draw(surface, theme_dict)
 
-        # Main Frosted Glass Board Container
         cell_sz, gap, gx, gy = self.get_grid_layout()
         grid_w = self.grid_size * (cell_sz + gap) + gap
         grid_h = grid_w
 
         draw_glass_panel(surface, (gx, gy, grid_w, grid_h), theme_dict["grid_bg"], theme_dict["glass_card_border"], radius=20, border_width=3)
 
-        # Translucent Empty Grid Slots
         for r in range(self.grid_size):
             for c in range(self.grid_size):
                 cx = gx + gap + c * (cell_sz + gap)
@@ -730,14 +725,12 @@ class Game2048:
                 radius = max(8, int(cell_sz * 0.14))
                 pygame.draw.rect(surface, theme_dict["grid_cell"], (cx, cy, cell_sz, cell_sz), border_radius=radius)
 
-        # Active Tiles with 100% Solid Full-Block Fill
         for r in range(self.grid_size):
             for c in range(self.grid_size):
                 tile = self.grid[r][c]
                 if tile:
                     tile.draw(surface, cell_sz, theme_dict)
 
-        # Floating Score Popups
         for fs in self.floating_scores:
             fs.draw(surface, theme_dict["text_accent"])
 
@@ -750,50 +743,53 @@ class Game2048:
         overlay_surf.fill((0, 0, 0, 170))
         surface.blit(overlay_surf, (0, 0))
 
-        draw_glass_panel(surface, (200, 220, 400, 420), theme_dict["glass_card_bg"], theme_dict["accent_glow"], radius=24, border_width=3)
+        draw_glass_panel(surface, (200, 200, 400, 440), theme_dict["glass_card_bg"], theme_dict["accent_glow"], radius=24, border_width=3)
 
         font_hdr = pygame.font.SysFont("comicsans", 44, bold=True)
         lbl_p = font_hdr.render("GAME PAUSED", True, theme_dict["text_main"])
-        surface.blit(lbl_p, lbl_p.get_rect(center=(400, 280)))
+        surface.blit(lbl_p, lbl_p.get_rect(center=(400, 260)))
 
         self.btn_resume.draw(surface, theme_dict)
         self.btn_restart_pause.draw(surface, theme_dict)
         self.btn_theme_pause.draw(surface, theme_dict)
         self.btn_main_menu.draw(surface, theme_dict)
+        self.btn_quit_pause.draw(surface, theme_dict)
 
     def draw_victory_overlay(self, surface, theme_dict):
         overlay_surf = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         overlay_surf.fill((0, 0, 0, 180))
         surface.blit(overlay_surf, (0, 0))
 
-        draw_glass_panel(surface, (180, 250, 440, 360), theme_dict["glass_card_bg"], (245, 158, 11, 220), radius=24, border_width=4)
+        draw_glass_panel(surface, (160, 250, 480, 340), theme_dict["glass_card_bg"], (245, 158, 11, 220), radius=24, border_width=4)
 
         font_win = pygame.font.SysFont("comicsans", 50, bold=True)
         lbl_w = font_win.render("YOU WIN! 🎉", True, theme_dict["text_accent"])
-        surface.blit(lbl_w, lbl_w.get_rect(center=(400, 320)))
+        surface.blit(lbl_w, lbl_w.get_rect(center=(400, 315)))
 
         font_sub = pygame.font.SysFont("comicsans", 22)
         lbl_s = font_sub.render(f"You reached 2048! Score: {self.score}", True, theme_dict["text_main"])
-        surface.blit(lbl_s, lbl_s.get_rect(center=(400, 380)))
+        surface.blit(lbl_s, lbl_s.get_rect(center=(400, 375)))
 
         self.btn_keep_playing.draw(surface, theme_dict)
+        self.btn_quit_win.draw(surface, theme_dict)
 
     def draw_gameover_overlay(self, surface, theme_dict):
         overlay_surf = pygame.Surface((self.width, self.height), pygame.SRCALPHA)
         overlay_surf.fill((0, 0, 0, 190))
         surface.blit(overlay_surf, (0, 0))
 
-        draw_glass_panel(surface, (180, 250, 440, 360), theme_dict["glass_card_bg"], (225, 29, 72, 220), radius=24, border_width=4)
+        draw_glass_panel(surface, (160, 250, 480, 340), theme_dict["glass_card_bg"], (225, 29, 72, 220), radius=24, border_width=4)
 
         font_loss = pygame.font.SysFont("comicsans", 50, bold=True)
         lbl_l = font_loss.render("GAME OVER", True, (225, 29, 72))
-        surface.blit(lbl_l, lbl_l.get_rect(center=(400, 320)))
+        surface.blit(lbl_l, lbl_l.get_rect(center=(400, 315)))
 
         font_sub = pygame.font.SysFont("comicsans", 22)
         lbl_s = font_sub.render(f"Final Score: {self.score}  |  Best: {self.get_high_score()}", True, theme_dict["text_main"])
-        surface.blit(lbl_s, lbl_s.get_rect(center=(400, 380)))
+        surface.blit(lbl_s, lbl_s.get_rect(center=(400, 375)))
 
         self.btn_try_again.draw(surface, theme_dict)
+        self.btn_quit_loss.draw(surface, theme_dict)
 
     def handle_event(self, event):
         if event.type == pygame.QUIT:
@@ -827,19 +823,23 @@ class Game2048:
             self.btn_grid3.handle_event(event, self.sound_mgr)
             self.btn_grid4.handle_event(event, self.sound_mgr)
             self.btn_grid5.handle_event(event, self.sound_mgr)
+            self.btn_quit_menu.handle_event(event, self.sound_mgr)
         elif self.state in ("PLAYING", "WON", "GAME_OVER"):
             self.btn_undo.handle_event(event, self.sound_mgr)
             self.btn_pause.handle_event(event, self.sound_mgr)
             if self.state == "WON":
                 self.btn_keep_playing.handle_event(event, self.sound_mgr)
+                self.btn_quit_win.handle_event(event, self.sound_mgr)
             elif self.state == "GAME_OVER":
                 self.btn_try_again.handle_event(event, self.sound_mgr)
+                self.btn_quit_loss.handle_event(event, self.sound_mgr)
         elif self.state == "PAUSED":
             self.btn_resume.handle_event(event, self.sound_mgr)
             self.btn_restart_pause.handle_event(event, self.sound_mgr)
             if self.btn_theme_pause.handle_event(event, self.sound_mgr):
                 self.btn_theme_pause.text = f"MODE: {self.theme_name.upper()}"
             self.btn_main_menu.handle_event(event, self.sound_mgr)
+            self.btn_quit_pause.handle_event(event, self.sound_mgr)
 
         return True
 
