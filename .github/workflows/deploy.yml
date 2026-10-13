@@ -1,0 +1,38 @@
+
+name: Deploy 2048 to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Pygbag
+        run: |
+          python -m pip install --upgrade pip pygbag
+
+      - name: Build browser game
+        run: python -m pygbag --build webgame
+
+      - name: Publish to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: webgame/build/web
+          publish_branch: gh-pages
+          force_orphan: true
